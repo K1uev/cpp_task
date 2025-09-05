@@ -47,7 +47,7 @@ bool readMatrix(std::istream& input, Matrix& matrix)
 	return row == MATRIX_SIZE;
 }
 
-Matrix multiply(Matrix& a, Matrix& b) 
+Matrix multiply(Matrix& first, Matrix& second) 
 {
 	Matrix result = {0};
 
@@ -57,7 +57,7 @@ Matrix multiply(Matrix& a, Matrix& b)
 		{
 			for (int val = 0; val < MATRIX_SIZE; val++)
 			{
-				result[row][col] += a[row][val] * b[val][col];
+				result[row][col] += first[row][val] * second[val][col];
 			}
 		}
 	}
