@@ -17,7 +17,7 @@ bool readMatrix(std::istream& input, Matrix& matrix)
 
 	while (row < MATRIX_SIZE && std::getline(input, line))
 	{
-		if(line.empty())
+		if (line.empty())
 		{
 			continue;
 		}
@@ -31,18 +31,19 @@ bool readMatrix(std::istream& input, Matrix& matrix)
 			values.push_back(value);
 		}
 
-		if(values.size() != MATRIX_SIZE)
+		if (values.size() != MATRIX_SIZE)
 		{
 			return false;
 		}
 
-		for(int col = 0; col < MATRIX_SIZE; col++)
+		for (int col = 0; col < MATRIX_SIZE; col++)
 		{
 			matrix[row][col] = values[col];
 		}
 		
 		row++;
 	}
+    
 	return row == MATRIX_SIZE;
 }
 
@@ -76,46 +77,58 @@ void printMatrix(const Matrix& matrix)
 	}
 }
 
+bool readMatrixFromFile(int argc, char* argv[], Matrix& matrix1, Matrix& matrix2)
+{
+    std::ifstream file1(argv[1]);
+    std::ifstream file2(argv[2]);
+
+    if (!file1.is_open() || !file2.is_open())
+    {
+        return 0;
+    }
+    
+    return readMatrix(file1, matrix1) && readMatrix(file2, matrix2);
+}
+
+bool readMatricesFromStdin(Matrix& matrix1, Matrix& matrix2)
+{
+    if (!readMatrix(std::cin, matrix1))
+    {
+        return 0;
+    }
+
+    std::string emptyLine;
+    if (std::cin.peek() == '\n')
+    {
+        std::cin.get();
+    }
+
+    return readMatrix(std::cin, matrix2);
+}
+
 int main(int argc, char* argv[])
 {
 	Matrix matrix1, matrix2;
 
-	if(argc == 3)
+	if (argc == 3)
 	{
-		std::ifstream file1(argv[1]);
-		std::ifstream file2(argv[2]);
-
-		if (!file1.is_open() || !file2.is_open()) {
-			std::cout << "ERROR" << std::endl;
-			return 1;
-		}
-		
-		if (!readMatrix(file1, matrix1) || !readMatrix(file2, matrix2)) {
-			std::cout << "ERROR" << std::endl;
-			return 1;
-		}
-
+        if (!readMatrixFromFile(argc, argv, matrix1, matrix2))
+        {
+            std::cout << "ERROR" << std::endl;
+            return 1;
+        }
 	}
 	else if (argc == 1)
 	{
-		if (!readMatrix(std::cin, matrix1)) {
-			std::cout << "ERROR" << std::endl;
-			return 0;
-		}
-
-		std::string emptyLine;
-		if (std::cin.peek() == '\n') {
-			std::cin.get();
-		}
-
-		if (!readMatrix(std::cin, matrix2)) {
-			std::cout << "ERROR" << std::endl;
-			return 0;
-		}
-}
+        if (!readMatricesFromStdin(matrix1, matrix2))
+        {
+            std::cout << "ERROR" << std::endl;
+            return 1;
+        }
+    }
 	else
 	{
-		std::cerr << "ERROR" << std::endl;
+		std::cout << "ERROR" << std::endl;
 		return 1;
 	}
 
