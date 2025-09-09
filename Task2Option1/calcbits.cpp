@@ -1,100 +1,161 @@
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <stdexcept>
 #include <climits>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
-bool checkArgCount(int argc, char* argv[]) {
-	if (argc > 2) {
-		std::cerr << "Передано 2 или более параметров" << std::endl;
-		return false;
+class NegativeValueException : public std::invalid_argument
+{
+public:
+	NegativeValueException()
+		: std::invalid_argument("Negative value")
+	{
 	}
-	return true;
-}
+};
 
-bool checkArgValueHelp(int argc, char* argv[]) {
-	if (argc == 2 && strcmp(argv[1], "-h") == 0) {
+class InvalidInputException : public std::invalid_argument
+{
+public:
+	InvalidInputException()
+		: std::invalid_argument("Invalid input")
+	{
+	}
+};
+
+class OutOfRangeException : public std::out_of_range
+{
+public:
+	OutOfRangeException()
+		: std::out_of_range("Number too large")
+	{
+	}
+};
+
+class TooManyArgumentsException : public std::runtime_error
+{
+public:
+	TooManyArgumentsException()
+		: std::runtime_error("Too many arguments")
+	{
+	}
+};
+
+bool CheckArgValueHelp(int argc, char* argv[])
+{
+	if (argc == 2 && strcmp(argv[1], "-h") == 0)
+	{
 		std::cout << "Приложение выполняет подсчет и вывод количества единичных битов в байте\nПередача происходит следующим образом:\ncalcbits.exe <byte>" << std::endl;
 		return true;
 	}
 	return false;
 }
 
-void checkPositivityValue(int value) {
-	if (value < 0) {
-		throw std::invalid_argument("Negative value");
+void CheckPositivityValue(int value)
+{
+	if (value < 0)
+	{
+		throw NegativeValueException();
 	}
 }
 
-int countLastBits(int value) {
+int CountLastBits(int value)
+{
 	int count = 0;
 	unsigned char byteValue = value & 0xFF;
-	
-	while (byteValue) {
+
+	while (byteValue)
+	{
 		count += byteValue & 1;
 		byteValue >>= 1;
 	}
-	
+
 	return count;
 }
 
-void getBitCountFromValue(int value) {
-	checkPositivityValue(value);
-	
-	int bitCount = countLastBits(value);
+void GetBitCountFromValue(int value)
+{
+	CheckPositivityValue(value);
+	int bitCount = CountLastBits(value);
 	std::cout << bitCount << std::endl;
 }
 
-void getBitCountFromInput() {
+void GetBitCountFromInput()
+{
 	int cinValue;
-	if (std::cin >> cinValue) {
-		getBitCountFromValue(cinValue);
-	} else {
-		std::cerr << "Введено не число" << std::endl;
-		throw std::invalid_argument("Invalid input");
+	if (std::cin >> cinValue)
+	{
+		GetBitCountFromValue(cinValue);
+	}
+	else
+	{
+		throw InvalidInputException();
 	}
 }
 
-void getBitCountFromArg(char* arg) {
-	try {
+void GetBitCountFromArg(char* arg)
+{
+	try
+	{
 		int paramValue = std::stoi(arg);
-		getBitCountFromValue(paramValue);
+		GetBitCountFromValue(paramValue);
 	}
-	catch (const std::invalid_argument& e) {
-		std::cerr << "Аргумент должен быть числом" << std::endl;
-		throw;
+	catch (const std::invalid_argument&)
+	{
+		throw InvalidInputException();
 	}
-	catch (const std::out_of_range& e) {
-		std::cerr << "Число слишком большое" << std::endl;
-		throw;
+	catch (const std::out_of_range&)
+	{
+		throw OutOfRangeException();
 	}
 }
 
 int main(int argc, char* argv[])
 {
-	if (checkArgValueHelp(argc, argv)) {
+	try
+	{
+		if (CheckArgValueHelp(argc, argv))
+		{
+			return 0;
+		}
+
+		if (argc == 1)
+		{
+			GetBitCountFromInput();
+		}
+		else if (argc == 2)
+		{
+			GetBitCountFromArg(argv[1]);
+		}
+		else if (argc > 2)
+		{
+			throw TooManyArgumentsException();
+		}
+
 		return 0;
 	}
-	
-	if (!checkArgCount(argc, argv)) {
+	catch (const NegativeValueException&)
+	{
+		std::cerr << "Число должно быть больше 0" << std::endl;
 		return 1;
 	}
-
-	try {
-		if (argc == 1) {
-			getBitCountFromInput();
-		} else if (argc == 2) {
-			getBitCountFromArg(argv[1]);
-		}
-		return 0;
+	catch (const InvalidInputException&)
+	{
+		std::cerr << "Введено не число" << std::endl;
+		return 1;
 	}
-    catch (const std::invalid_argument& e) {
-        if (std::strcmp(e.what(), "Negative value") == 0) {
-            std::cerr << "Число должно быть больше 0" << std::endl;
-        }
-        return 1;
-    }
-    catch (const std::exception& e) {
-        return 1;
-    }
+	catch (const OutOfRangeException&)
+	{
+		std::cerr << "Число слишком большое" << std::endl;
+		return 1;
+	}
+	catch (const TooManyArgumentsException&)
+	{
+		std::cerr << "Передано 2 или более параметров" << std::endl;
+		return 1;
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Неизвестная ошибка: " << e.what() << std::endl;
+		return 1;
+	}
 }
