@@ -133,29 +133,24 @@ int main(int argc, char* argv[])
 
 		return 0;
 	}
-	catch (const NegativeValueException&)
+	catch (const NegativeValueException& e)
 	{
-		std::cerr << "Число должно быть больше 0" << std::endl;
+		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	catch (const InvalidInputException&)
+	catch (const InvalidInputException& e)
 	{
-		std::cerr << "Введено не число" << std::endl;
+		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	catch (const OutOfRangeException&)
+	catch (const OutOfRangeException& e)
 	{
-		std::cerr << "Число слишком большое" << std::endl;
+		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	catch (const TooManyArgumentsException&)
+	catch (const TooManyArgumentsException& e)
 	{
-		std::cerr << "Передано 2 или более параметров" << std::endl;
-		return 1;
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "Неизвестная ошибка: " << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		return 1;
 	}
 }
