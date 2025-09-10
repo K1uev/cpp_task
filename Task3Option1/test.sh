@@ -42,13 +42,13 @@ checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 4: Ошибка чтения файла"
-expectedValue="ERROR"
+expectedValue="Failed to open file"
 result=$(./multmatrix.exe no_file.txt test_zero.txt)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 5: Ошибка формата матрицы"
-expectedValue="ERROR"
+expectedValue="Invalid matrix data"
 result=$(./multmatrix.exe test_error_matrix.txt test1.txt 2>&1)
 checkResults "$expectedValue" "$result"
 echo
@@ -62,13 +62,13 @@ checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 7: Ошибка ввода через stdin"
-expectedValue="ERROR"
+expectedValue="Invalid matrix data"
 result=$(echo -e "1 2\n4 5 6\n7 8 9" | ./multmatrix.exe 2>&1)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 8: Неверное количество аргументов"
-expectedValue="ERROR"
+expectedValue="Invalid number of arguments"
 result=$(./multmatrix.exe test1.txt)
 checkResults "$expectedValue" "$result"
 echo

@@ -1,21 +1,48 @@
-#include <iostream>
-#include <fstream>
 #include <array>
-#include <string>
-#include <sstream>
+#include <fstream>
 #include <iomanip>
-#include <vector>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
-const int MATRIX_SIZE = 3;
+class InvalidMatrixDataException : public std::invalid_argument
+{
+public:
+	InvalidMatrixDataException()
+		: std::invalid_argument("Invalid matrix data")
+	{
+	}
+};
 
-using Matrix = std::array<std::array<double, MATRIX_SIZE>, MATRIX_SIZE>;
+class FileOpenException : public std::runtime_error
+{
+public:
+	FileOpenException()
+		: std::runtime_error("Failed to open file")
+	{
+	}
+};
 
-bool readMatrix(std::istream& input, Matrix& matrix)
+class InvalidArgumentsException : public std::runtime_error
+{
+public:
+	InvalidArgumentsException()
+		: std::runtime_error("Invalid number of arguments")
+	{
+	}
+};
+
+const int matrixSize = 3;
+
+using Matrix = std::array<std::array<double, matrixSize>, matrixSize>;
+
+void ReadMatrix(std::istream& input, Matrix& matrix)
 {
 	std::string line;
 	int row = 0;
 
-	while (row < MATRIX_SIZE && std::getline(input, line))
+	while (row < matrixSize && std::getline(input, line))
 	{
 		if (line.empty())
 		{
@@ -23,39 +50,38 @@ bool readMatrix(std::istream& input, Matrix& matrix)
 		}
 
 		std::istringstream strStream(line);
-		std::vector <double> values;
+		int col = 0;
 		double value;
 
-		while (strStream >> value)
+		while (col < matrixSize && strStream >> value)
 		{
-			values.push_back(value);
+			matrix[row][col] = value;
+			col++;
 		}
 
-		if (values.size() != MATRIX_SIZE)
+		if (col != matrixSize)
 		{
-			return false;
+			throw InvalidMatrixDataException();
 		}
 
-		for (int col = 0; col < MATRIX_SIZE; col++)
-		{
-			matrix[row][col] = values[col];
-		}
-		
 		row++;
 	}
-    
-	return row == MATRIX_SIZE;
+
+	if (row != matrixSize)
+	{
+		throw InvalidMatrixDataException();
+	}
 }
 
-Matrix multiply(Matrix& first, Matrix& second) 
+Matrix Multiply(const Matrix& first, const Matrix& second)
 {
-	Matrix result = {0};
+	Matrix result = { 0 };
 
-	for (int row = 0; row < MATRIX_SIZE;  row++)
+	for (int row = 0; row < matrixSize; row++)
 	{
-		for (int col = 0; col < MATRIX_SIZE;  col++)
+		for (int col = 0; col < matrixSize; col++)
 		{
-			for (int val = 0; val < MATRIX_SIZE; val++)
+			for (int val = 0; val < matrixSize; val++)
 			{
 				result[row][col] += first[row][val] * second[val][col];
 			}
@@ -65,11 +91,11 @@ Matrix multiply(Matrix& first, Matrix& second)
 	return result;
 }
 
-void printMatrix(const Matrix& matrix)
+void PrintMatrix(const Matrix& matrix)
 {
-	for (int row = 0; row < MATRIX_SIZE;  row++)
+	for (int row = 0; row < matrixSize; row++)
 	{
-		for (int col = 0; col < MATRIX_SIZE;  col++)
+		for (int col = 0; col < matrixSize; col++)
 		{
 			std::cout << std::fixed << std::setprecision(3) << matrix[row][col] << " ";
 		}
@@ -77,63 +103,73 @@ void printMatrix(const Matrix& matrix)
 	}
 }
 
-bool readMatrixFromFile(int argc, char* argv[], Matrix& matrix1, Matrix& matrix2)
+void ReadMatrixFromFile(const std::string& fileName1, const std::string& fileName2, Matrix& matrix1, Matrix& matrix2)
 {
-    std::ifstream file1(argv[1]);
-    std::ifstream file2(argv[2]);
+	std::ifstream file1(fileName1);
+	if (!file1.is_open())
+	{
+		throw FileOpenException();
+	}
 
-    if (!file1.is_open() || !file2.is_open())
-    {
-        return 0;
-    }
-    
-    return readMatrix(file1, matrix1) && readMatrix(file2, matrix2);
+	std::ifstream file2(fileName2);
+	if (!file2.is_open())
+	{
+		throw FileOpenException();
+	}
+
+	ReadMatrix(file1, matrix1);
+	ReadMatrix(file2, matrix2);
 }
 
-bool readMatricesFromStdin(Matrix& matrix1, Matrix& matrix2)
+void ReadMatricesFromStdin(Matrix& matrix1, Matrix& matrix2)
 {
-    if (!readMatrix(std::cin, matrix1))
-    {
-        return 0;
-    }
+	ReadMatrix(std::cin, matrix1);
 
-    std::string emptyLine;
-    if (std::cin.peek() == '\n')
-    {
-        std::cin.get();
-    }
+	if (std::cin.peek() == '\n')
+	{
+		std::cin.ignore();
+	}
 
-    return readMatrix(std::cin, matrix2);
+	ReadMatrix(std::cin, matrix2);
 }
 
 int main(int argc, char* argv[])
 {
-	Matrix matrix1, matrix2;
+	try
+	{
+		Matrix matrix1, matrix2;
 
-	if (argc == 3)
-	{
-        if (!readMatrixFromFile(argc, argv, matrix1, matrix2))
-        {
-            std::cout << "ERROR" << std::endl;
-            return 1;
-        }
+		if (argc == 3)
+		{
+			ReadMatrixFromFile(argv[1], argv[2], matrix1, matrix2);
+		}
+		else if (argc == 1)
+		{
+			ReadMatricesFromStdin(matrix1, matrix2);
+		}
+		else
+		{
+			throw InvalidArgumentsException();
+		}
+
+		Matrix result = Multiply(matrix1, matrix2);
+		PrintMatrix(result);
+
+		return 0;
 	}
-	else if (argc == 1)
+	catch (const InvalidMatrixDataException& e)
 	{
-        if (!readMatricesFromStdin(matrix1, matrix2))
-        {
-            std::cout << "ERROR" << std::endl;
-            return 1;
-        }
-    }
-	else
-	{
-		std::cout << "ERROR" << std::endl;
+		std::cout << e.what() << std::endl;
 		return 1;
 	}
-
-	Matrix result = multiply(matrix1, matrix2);
-	printMatrix(result);
-
-	return 0;
+	catch (const FileOpenException& e)
+	{
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
+	catch (const InvalidArgumentsException& e)
+	{
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
 }
