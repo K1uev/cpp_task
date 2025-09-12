@@ -3,26 +3,39 @@
 
 std::string TrimBlanks(std::string const& str)
 {
-	std::string returnStr;
-	for (size_t i = 0; i < str.size(); i++)
+	if (str.empty())
 	{
-		if (str[i] != ' ')
-		{
-			returnStr.push_back(str[i]);
-		}
+		return str;
 	}
 
-	return returnStr;
+	size_t start = 0;
+	while (start < str.size() && str[start] == ' ')
+	{
+		start++;
+	}
+
+	size_t end = str.size();
+	while (end > start && str[end - 1] == ' ')
+	{
+		end--;
+	}
+
+	return str.substr(start, end - start);
 }
 
 int main(int argc, char* argv[])
 {
-	if (argc > 1)
+	try
 	{
+		if (argc <= 1)
+		{
+			throw std::invalid_argument("No arguments");
+		}
+
 		std::string input = argv[1];
 		std::cout << TrimBlanks(input) << std::endl;
 	}
-	else
+	catch (...)
 	{
 		std::cout << "ERROR" << std::endl;
 		return 1;

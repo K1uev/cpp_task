@@ -47,4 +47,22 @@ result=$(./trimBlanks.exe)
 checkResults "$expectedValue" "$result"
 echo
 
+echo "Тест 6: Передача нескольких слов с пробелами и в начале, и в конце"
+expectedValue="hello, world"
+result=$(./trimBlanks.exe " hello, world   ")
+checkResults "$expectedValue" "$result"
+echo
+
+echo "Тест 7: Передача нескольких слов с пробелами в начале"
+expectedValue="hello, world"
+result=$(./trimBlanks.exe "  hello, world")
+checkResults "$expectedValue" "$result"
+echo
+
+echo "Тест 8: Передача нескольких слов с пробелами в конце"
+expectedValue="hello, world"
+result=$(./trimBlanks.exe "hello, world   ")
+checkResults "$expectedValue" "$result"
+echo
+
 rm trimBlanks.exe
