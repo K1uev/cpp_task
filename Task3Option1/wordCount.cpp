@@ -6,8 +6,8 @@ using wordCountMap = std::map<std::string, int>;
 
 wordCountMap CountWordsFromStream(std::istream& input)
 {
-	wordCountMap wordCountMap;
-	std::string word;
+	wordCountMap wordCountMap{};
+	std::string word{};
 
 	while (input >> word)
 	{
