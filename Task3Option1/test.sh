@@ -47,4 +47,10 @@ result=$(echo -e "" | ./wordCount.exe)
 checkResults "$expectedValue" "$result"
 echo
 
+echo "Тест 5: Пустые строки и пробелы"
+expectedValue=""
+result=$(echo -e "     \n\t  \n   " | ./wordCount.exe)
+checkResults "$expectedValue" "$result"
+echo
+
 rm wordCount.exe

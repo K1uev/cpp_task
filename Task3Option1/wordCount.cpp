@@ -1,29 +1,43 @@
 #include <iostream>
-#include <string>
 #include <map>
-#include <sstream>
+#include <string>
 
-int main()
+using wordCountMap = std::map<std::string, int>;
+
+wordCountMap CountWordsFromStream(std::istream& input)
 {
-	std::string line;
-	std::map<std::string, int> countWordsMap;
+	wordCountMap wordCountMap;
+	std::string word;
 
-	while (std::getline(std::cin, line))
+	while (input >> word)
 	{
-		std::istringstream inputStr(line);
-		std::string word;
-
-		while (inputStr >> word)
-		{
-			countWordsMap[word]++;
-		}
+		wordCountMap[word]++;
 	}
 
-	auto mapElemCount = countWordsMap.begin();
-	while (mapElemCount != countWordsMap.end())
+	return wordCountMap;
+}
+
+void PrintWordCount(const wordCountMap& wordCountMap)
+{
+	auto mapElemCount = wordCountMap.begin();
+	while (mapElemCount != wordCountMap.end())
 	{
 		std::cout << mapElemCount->first << "->" << mapElemCount->second << std::endl;
 		++mapElemCount;
+	}
+}
+
+int main()
+{
+	try
+	{
+		wordCountMap wordCountMap = CountWordsFromStream(std::cin);
+		PrintWordCount(wordCountMap);
+	}
+	catch (...)
+	{
+		std::cout << "ERROR" << std::endl;
+		return 1;
 	}
 
 	return 0;
