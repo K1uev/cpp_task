@@ -73,37 +73,37 @@ checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 8: Переданное значение (режим stdin): пустая строка"
-expectedValue="ERROR"
+expectedValue="Empty input"
 result=$(echo -e "" | ./crossSet.exe)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 9: Переданное значение (режим stdin): test"
-expectedValue="ERROR"
+expectedValue="None digits in input"
 result=$(echo -e "test" | ./crossSet.exe)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 10: Переданное значение (режим командной строки): test"
-expectedValue="ERROR"
+expectedValue="None digits in input"
 result=$(./crossSet.exe test)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 11: Переданное значение (режим командной строки): -1"
-expectedValue="ERROR"
+expectedValue="None digits in input"
 result=$(./crossSet.exe -1)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 12: Переданное значение (режим командной строки): 0"
-expectedValue=""
+expectedValue="None positive number"
 result=$(./crossSet.exe 0)
 checkResults "$expectedValue" "$result"
 echo
 
 echo "Тест 13: Переданное значение (режим командной строки): 1 2"
-expectedValue="ERROR"
+expectedValue="Too many arguments"
 result=$(./crossSet.exe 1 2)
 checkResults "$expectedValue" "$result"
 echo
