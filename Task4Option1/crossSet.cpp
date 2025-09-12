@@ -115,7 +115,7 @@ void PrintSet(const std::set<int>& printedSet)
 
 std::set<int> CrossSet(std::set<int> const& set1, std::set<int> const& set2)
 {
-	std::set<int> setCross;
+	std::set<int> setCross{};
 	std::set_intersection(set1.begin(), set1.end(),
 		set2.begin(), set2.end(),
 		std::inserter(setCross, setCross.begin()));
