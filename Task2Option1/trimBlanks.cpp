@@ -1,45 +1,23 @@
-#include <iostream>
+#include "trimBlanks.h"
 #include <string>
 
 std::string TrimBlanks(std::string const& str)
 {
-	if (str.empty())
-	{
-		return str;
-	}
+    if (str.empty())
+    {
+        return str;
+    }
 
-	size_t start = 0;
-	while (start < str.size() && str[start] == ' ')
-	{
-		start++;
-	}
+    size_t start = str.find_first_not_of(" \t\n\r\f\v");
 
-	size_t end = str.size();
-	while (end > start && str[end - 1] == ' ')
-	{
-		end--;
-	}
+    if (start == std::string::npos)
+    {
+        return "";
+    }
 
-	return str.substr(start, end - start);
-}
+    size_t end = str.find_last_not_of(" \t\n\r\f\v");
 
-int main(int argc, char* argv[])
-{
-	try
-	{
-		if (argc <= 1)
-		{
-			throw std::invalid_argument("No arguments");
-		}
+    size_t length = end - start + 1;
 
-		std::string input = argv[1];
-		std::cout << TrimBlanks(input) << std::endl;
-	}
-	catch (...)
-	{
-		std::cout << "ERROR" << std::endl;
-		return 1;
-	}
-
-	return 0;
+    return str.substr(start, length);
 }
